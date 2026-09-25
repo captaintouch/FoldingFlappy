@@ -96,6 +96,10 @@ final class GameWorld {
     private(set) var flash: Double = 0
     private(set) var scorePulse: Double = 0
 
+    /// The hinge angle of the Duo in degrees (0 closed, 180 flat), or nil
+    /// when the device sends no hinge data.
+    var hingeAngle: Double?
+
     private var flapBoost: Double = 0
     private var lastDate: Date?
 
@@ -129,6 +133,11 @@ final class GameWorld {
     var wingAngle: Double {
         switch phase {
         case .ready, .playing:
+            if let hingeAngle {
+                // The wing follows the hinge: open phone is wing up,
+                // closed phone is wing down.
+                return -0.7 + min(max(hingeAngle, 0), 180) / 180 * 1.6
+            }
             return sin(wingPhase) * 0.75
         case .dying, .gameOver:
             return -0.4
@@ -191,8 +200,11 @@ final class GameWorld {
 
     /// Moves the simulation forward to `date`.
     func advance(to date: Date, viewport: CGSize) {
-        if viewport.width > 0, viewport.height > 0 {
-            width = Self.height * Double(viewport.width / viewport.height)
+        let aspect = Double(viewport.width / viewport.height)
+        if aspect.isFinite, aspect > 0 {
+            // Clamp, so that a strange size during a layout pass cannot make
+            // the world extremely wide.
+            width = Self.height * min(max(aspect, 0.2), 4)
         }
         guard let last = lastDate else {
             lastDate = date

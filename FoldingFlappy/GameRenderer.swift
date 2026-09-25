@@ -4,7 +4,7 @@ import SwiftUI
 /// drawing: no image assets.
 enum GameRenderer {
     static func draw(_ world: GameWorld, in context: inout GraphicsContext, size: CGSize) {
-        guard size.height > 0 else { return }
+        guard size.width > 0, size.height > 0, size.width.isFinite, size.height.isFinite else { return }
         let scale = size.height / GameWorld.height
         let width = world.width
         let palette = SkyPalette.at(world.dayProgress)

@@ -1,9 +1,10 @@
 import CoreGraphics
 import Foundation
 
-/// Turns folding and unfolding of an iPhone Duo into flap events.
+/// Fallback that turns folding and unfolding of an iPhone Duo into flap
+/// events when the hinge API sends no data (see `HingeSensor.swift`).
 ///
-/// SwiftUI has no hinge-angle API. It does tell us how much space the scene
+/// It looks at how much space the scene
 /// gets. When you close or open the Duo, the app moves between the cover
 /// display and the large inner display (or the scene is resized), so the
 /// available area changes a lot. A rotation only swaps width and height and
