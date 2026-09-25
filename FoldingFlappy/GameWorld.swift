@@ -64,13 +64,15 @@ final class GameWorld {
     static let groundY: Double = height - groundHeight
     static let dayLength: Double = 100
 
-    let gravity: Double = 2450
-    let flapVelocity: Double = -760
-    let maxFallSpeed: Double = 1150
-    let scrollSpeed: Double = 260
+    // Tuned for flaps by folding, which are much slower than taps: with
+    // one flap about every 0.9 s, the bird stays at about the same height.
+    let gravity: Double = 1100
+    let flapVelocity: Double = -500
+    let maxFallSpeed: Double = 620
+    let scrollSpeed: Double = 180
     let pipeWidth: Double = 124
     let pipeCapHeight: Double = 48
-    let pipeSpacing: Double = 400
+    let pipeSpacing: Double = 560
     let birdRadius: Double = 27
 
     // MARK: - State
@@ -134,7 +136,7 @@ final class GameWorld {
         case .ready:
             return sin(clock * 3.2) * 0.08
         case .playing, .dying, .gameOver:
-            return min(max(birdVelocity / 1000 * 1.3, -0.45), 1.45)
+            return min(max(birdVelocity / 600 * 1.1, -0.45), 1.3)
         }
     }
 
@@ -296,12 +298,13 @@ final class GameWorld {
         var nextX = pipes.last.map { $0.x + pipeSpacing } ?? (width + pipeWidth)
         while nextX <= width + pipeWidth * 2 {
             // The gap gets smaller as the score goes up.
-            let gap = max(215, 290 - Double(score) * 2.5)
-            let minY = 150 + gap / 2
-            let maxY = Self.groundY - 110 - gap / 2
+            // A large gap that gets only a little smaller as the score goes up.
+            let gap = max(330, 410 - Double(score) * 2)
+            let minY = 140 + gap / 2
+            let maxY = Self.groundY - 100 - gap / 2
             var gapY = Double.random(in: minY...maxY)
             if let previous = pipes.last?.gapY {
-                gapY = min(max(gapY, previous - 280), previous + 280)
+                gapY = min(max(gapY, previous - 150), previous + 150)
             }
             pipes.append(Pipe(x: nextX, gapY: gapY, gap: gap))
             nextX += pipeSpacing
@@ -309,7 +312,8 @@ final class GameWorld {
     }
 
     private func checkCollisions() {
-        let radius = birdRadius * 0.86
+        // A small hitbox: touching a pipe with a feather is not a crash.
+        let radius = birdRadius * 0.7
         if birdY + radius >= Self.groundY {
             die()
             return

@@ -9,7 +9,7 @@ import SwiftUI
 /// sensor noise and one long movement from making extra flaps.
 struct HingeFlapDetector {
     /// How far (degrees) you must move the hinge to flap.
-    var strokeAngle = 15.0
+    var strokeAngle = 8.0
 
     /// The last hinge angle in degrees. 0 is closed, 180 is flat.
     private(set) var angle: Double?
