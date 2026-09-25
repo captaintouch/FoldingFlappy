@@ -2,54 +2,50 @@ import SwiftUI
 
 /// Turns the hinge angle of an iPhone Duo into flap events.
 ///
-/// A flap is one wing stroke: you close the phone by at least `strokeAngle`
-/// degrees. Before the next flap, you must open it again by at least
-/// `rearmAngle` degrees. This hysteresis stops sensor noise from making
-/// extra flaps.
+/// A flap is one fold stroke in either direction: you close or open the
+/// phone by at least `strokeAngle` degrees. After a flap, the next flap comes
+/// when you move the hinge back the other way by `strokeAngle` degrees. If
+/// you keep moving in the same direction, there is no new flap. This stops
+/// sensor noise and one long movement from making extra flaps.
 struct HingeFlapDetector {
-    /// How far (degrees) you must close the phone to flap.
-    var strokeAngle = 20.0
-    /// How far (degrees) you must open the phone again before the next flap.
-    var rearmAngle = 12.0
+    /// How far (degrees) you must move the hinge to flap.
+    var strokeAngle = 15.0
 
     /// The last hinge angle in degrees. 0 is closed, 180 is flat.
     private(set) var angle: Double?
 
-    private var isArmed = true
-    /// Most open angle since the last re-arm, or most closed angle since the last flap.
-    private var extreme = 0.0
+    /// Direction of the last flap: 1 is opening, -1 is closing, 0 is none yet.
+    private var direction = 0.0
+    /// The angle where the current stroke started, or the furthest angle
+    /// in the direction of the last flap.
+    private var anchor = 0.0
 
     /// Registers a new hinge angle.
-    /// - Returns: `true` when the change completes a closing stroke.
+    /// - Returns: `true` when the change completes a fold stroke.
     mutating func register(angle degrees: Double) -> Bool {
         guard angle != nil else {
             angle = degrees
-            extreme = degrees
+            anchor = degrees
             return false
         }
         angle = degrees
 
-        if isArmed {
-            extreme = max(extreme, degrees)
-            if extreme - degrees >= strokeAngle {
-                isArmed = false
-                extreme = degrees
-                return true
-            }
-        } else {
-            extreme = min(extreme, degrees)
-            if degrees - extreme >= rearmAngle {
-                isArmed = true
-                extreme = degrees
-            }
+        let delta = degrees - anchor
+        if direction != 0, delta * direction > 0 {
+            // Still moving the same way as the last flap: follow it.
+            anchor = degrees
+            return false
         }
-        return false
+        guard abs(delta) >= strokeAngle else { return false }
+        direction = delta > 0 ? 1 : -1
+        anchor = degrees
+        return true
     }
 
     /// Forgets the hinge, for example when the system stops sending updates.
     mutating func reset() {
         angle = nil
-        isArmed = true
+        direction = 0
     }
 }
 

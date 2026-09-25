@@ -8,7 +8,7 @@ All graphics are vector drawing in a `Canvas`.
 
 | Action | Result |
 | --- | --- |
-| Close the Duo by 20° or more | Flap. Open it again by 12° before the next flap. |
+| Close or open the Duo by 15° or more | Flap. The next flap comes when you move the hinge back the other way. |
 | Tap the screen | Flap (for phones that do not fold) |
 
 A flap also starts the game, and restarts it after a game over.
@@ -21,9 +21,13 @@ The main input is Apple's hinge API: the SwiftUI modifier `onHingeChange`
 (`DeviceHinge?`) has an `angle` (0° closed, 180° flat) and a `status`
 (`.closed`, `.partiallyOpen`, `.fullyOpen`).
 
-`HingeFlapDetector` turns the angle into flaps. A flap is a closing stroke
-of at least 20°. Before the next flap, you must open the phone again by at
-least 12°. This stops sensor noise from making extra flaps.
+`HingeFlapDetector` turns the angle into flaps. A flap is a fold stroke of
+at least 15° in either direction (for example half open to fully open, then
+back). A long movement in one direction is one flap. This also stops sensor
+noise from making extra flaps.
+
+The system blurs the app for a short time when the fold changes. No public
+API can switch this off.
 
 Fallback when there is no hinge data (for example iOS 27.0):
 

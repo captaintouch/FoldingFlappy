@@ -491,6 +491,12 @@ enum GameRenderer {
         case .gameOver:
             drawGameOver(&ctx, world: world, width: width)
         }
+
+        // Hinge readout on the ground, so you can see that hinge data arrives.
+        let hingeText = world.hingeAngle.map { "Hinge \(Int($0.rounded()))°" } ?? "No hinge data"
+        ctx.draw(Text(hingeText).font(.system(size: 26, weight: .bold, design: .rounded))
+                    .foregroundStyle(RGB(0x5A3A10).withOpacity(0.7)),
+                 at: CGPoint(x: cx, y: GameWorld.groundY + 90), anchor: .center)
     }
 
     private static func drawTitle(_ ctx: inout GraphicsContext, world: GameWorld, width: Double) {
