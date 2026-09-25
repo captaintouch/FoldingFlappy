@@ -51,7 +51,10 @@ enum GameRenderer {
         }
         drawParticles(&scene, world: world)
 
-        drawHUD(&ctx, world: world, width: width)
+        // The HUD uses only the play area (right of the fold on the Duo).
+        var hud = ctx
+        hud.translateBy(x: world.playMinX, y: 0)
+        drawHUD(&hud, world: world, width: world.playWidth)
         drawVignette(&ctx, width: width)
 
         if world.flash > 0 {

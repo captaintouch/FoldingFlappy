@@ -96,6 +96,15 @@ final class GameWorld {
     private(set) var flash: Double = 0
     private(set) var scorePulse: Double = 0
 
+    /// Left edge (world points) of the part of the screen where the game is
+    /// played. On the inner display of the Duo, this is the right edge of the
+    /// fold, because the system blurs the left half while the hinge moves.
+    /// 0 when there is no fold.
+    var playMinX: Double = 0
+
+    /// Width of the part of the screen where the game is played.
+    var playWidth: Double { max(width - playMinX, 1) }
+
     /// The hinge angle of the Duo in degrees (0 closed, 180 flat), or nil
     /// when the device sends no hinge data.
     var hingeAngle: Double?
@@ -232,7 +241,7 @@ final class GameWorld {
         flapBoost = max(0, flapBoost - dt * 3.5)
 
         // The bird glides to its new position when the world changes width.
-        let targetX = min(max(width * 0.3, 140), 320)
+        let targetX = playMinX + min(max(playWidth * 0.3, 120), 320)
         birdX += (targetX - birdX) * min(1, dt * 5)
 
         switch phase {

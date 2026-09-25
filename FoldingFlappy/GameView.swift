@@ -16,6 +16,9 @@ struct GameView: View {
                     GameRenderer.draw(world, in: &context, size: size)
                 }
             }
+            .onChange(of: Self.foldEdge(in: proxy), initial: true) { _, edge in
+                world.playMinX = edge.map { Double($0) * GameWorld.height / Double(proxy.size.height) } ?? 0
+            }
             .onChange(of: proxy.size, initial: true) { _, newSize in
                 // Fallback for a Duo without hinge data (iOS 27.0): a fold or
                 // unfold changes the scene size.
@@ -63,6 +66,20 @@ struct GameView: View {
         .sensoryFeedback(.impact(weight: .light), trigger: flapCount)
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
+    }
+
+    /// The right edge of the fold (points), when a fold runs from top to
+    /// bottom through this view. When the Duo is partially open, the system
+    /// blurs the half left of the fold, so the game is played to the right
+    /// of it. With `.includeInactive`, the edge stays the same when the Duo is
+    /// fully open, so the play area does not jump on each flap.
+    private static func foldEdge(in proxy: GeometryProxy) -> CGFloat? {
+        guard #available(iOS 27.1, *) else { return nil }
+        let regions = proxy.reservedRegions(kind: .division, options: .includeInactive)
+        guard let frame = regions.first?.frame, frame.height >= frame.width else { return nil }
+        let bounds = CGRect(origin: .zero, size: proxy.size)
+        guard bounds.contains(CGPoint(x: frame.midX, y: frame.midY)) else { return nil }
+        return frame.maxX
     }
 
     private var hasHinge: Bool { hingeDetector.angle != nil }

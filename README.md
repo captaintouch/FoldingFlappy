@@ -26,8 +26,12 @@ at least 15° in either direction (for example half open to fully open, then
 back). A long movement in one direction is one flap. This also stops sensor
 noise from making extra flaps.
 
-The system blurs the app for a short time when the fold changes. No public
-API can switch this off.
+When the Duo is partially open, the system blurs and darkens the half of
+the inner display left of the fold. No public API can switch this off. So on
+the inner display, the game is played right of the fold: the bird, the score
+and the menus stay in the clear half. The fold position comes from
+`GeometryProxy.reservedRegions(kind: .division, options: .includeInactive)`.
+The scenery and the pipes that you passed still move through the left half.
 
 Fallback when there is no hinge data (for example iOS 27.0):
 
