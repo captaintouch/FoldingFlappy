@@ -4,6 +4,9 @@ A Flappy Bird clone for the foldable iPhone Duo. You flap by closing and
 opening the phone. The game is 100% SwiftUI: no SpriteKit, no image assets.
 All graphics are vector drawing in a `Canvas`.
 
+## Video
+https://github.com/user-attachments/assets/28ae57d1-e3de-4503-a911-935137f13fc8
+
 ## Controls
 
 | Action | Result |
